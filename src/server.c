@@ -1,12 +1,12 @@
-#include "udp.h"
+#include "../include/udp.h"
 
 int main()
 {
     int port, socket_fd;
+    bool port_valid, ip_valid;
     saddr_in si_me;
 
-    printf("enter port: ");
-    scanf("%d", &port);
+    port = get_valid_port();
 
     socket_fd = init_udp_socket();
     printf("socket initialized\n");

@@ -1,19 +1,4 @@
-
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <stdlib.h>
-
-#ifndef UDP
-#define UDP
-#define BUFFER_LEN 512
-#define PORT 8888
-
-typedef struct sockaddr_in saddr_in;
-typedef struct sockaddr saddr;
+#include "../include/udp.h"
 
 void error(char *s)
 {
@@ -48,8 +33,7 @@ void clear_buffer()
 {
     int c;
     while ((c = getchar()) != EOF && c != '\n')
-    {
-    }
+        ;
 }
 
 void udp_client_listen(int socket_fd, saddr_in si_other)
@@ -118,4 +102,106 @@ void udp_server_listen(int socket_fd, saddr_in si_me)
     }
 }
 
-#endif
+char *get_valid_ip()
+{
+    char address[256];
+
+    printf("enter ipv4 address: ");
+    fgets(address, 256, stdin);
+    address[strlen(address) - 1] = '\0';
+
+    while (!validate_ip(address))
+    {
+        printf("invalid address\n");
+        printf("enter ipv4 address: ");
+
+        fgets(address, 256, stdin);
+        address[strlen(address) - 1] = '\0';
+    }
+
+    return strdup(address);
+}
+
+int get_valid_port()
+{
+    int port;
+
+    printf("enter port: ");
+    scanf("%d", &port);
+
+    while (!validate_port(port))
+    {
+        printf("invalid port\n");
+        printf("enter port: ");
+        scanf("%d", &port);
+    }
+
+    return port;
+}
+
+#pragma region helpers
+
+bool validate_number(char *str)
+{
+    while (*str)
+    {
+        if (!isdigit(*str))
+            return false;
+        str++;
+    }
+
+    return true;
+}
+
+bool validate_ip(char *addr)
+{
+    int num, dots = 0;
+    char *ptr, *ip = strdup(addr);
+
+    if (!ip)
+        return false;
+
+    if (strcmp(ip, "localhost") == 0)
+        return true;
+
+    ptr = strtok(ip, ".");
+
+    if (!ptr)
+    {
+        free(ip);
+        return false;
+    }
+
+    while (ptr)
+    {
+        if (!validate_number(ptr))
+        {
+            free(ip);
+            return false;
+        }
+
+        num = atoi(ptr);
+
+        if (num < 0 && num > 255)
+        {
+            free(ip);
+            return false;
+        }
+
+        ptr = strtok(NULL, ".");
+
+        if (ptr != NULL)
+            dots++;
+    }
+
+    free(ip);
+
+    return dots != 3 ? false : true;
+}
+
+bool validate_port(int port)
+{
+    return port > 0 && port <= 65535;
+}
+
+#pragma endregion

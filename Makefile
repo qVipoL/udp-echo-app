@@ -1,21 +1,18 @@
 CC := gcc
 BUILD_DIR := bin
+SOURCE_DIR := src
+INCLUDE_DIR := include
 
 all: build client server
 
 build:
 	@mkdir -p $(BUILD_DIR)
 
-run:
-	make all
-	gnome-terminal --title="server" -- "./$(BUILD_DIR)/server"
-	gnome-terminal --title="client" -- "./$(BUILD_DIR)/client" 
+client: $(SOURCE_DIR)/client.c $(SOURCE_DIR)/udp.c
+	$(CC) $(SOURCE_DIR)/client.c $(SOURCE_DIR)/udp.c -o $(BUILD_DIR)/client
 
-client: client.c udp.h
-	$(CC) -o $(BUILD_DIR)/client client.c
-
-server: server.c udp.h
-	$(CC) -o $(BUILD_DIR)/server server.c
+server: $(SOURCE_DIR)/server.c $(SOURCE_DIR)/udp.c
+	$(CC) $(SOURCE_DIR)/server.c $(SOURCE_DIR)/udp.c -o $(BUILD_DIR)/server
 
 clean:
 	rm $(BUILD_DIR)/*

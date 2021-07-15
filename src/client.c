@@ -1,15 +1,13 @@
-#include "udp.h"
+#include "../include/udp.h"
 
 int main()
 {
     int socket_fd, port;
-    char address[256];
+    char *address;
     saddr_in si_other;
 
-    printf("enter ip address: ");
-    scanf("%s", address);
-    printf("enter port: ");
-    scanf("%d", &port);
+    address = get_valid_ip();
+    port = get_valid_port();
 
     socket_fd = init_udp_socket();
     printf("socket initialized\n");
@@ -19,6 +17,7 @@ int main()
 
     udp_client_listen(socket_fd, si_other);
 
+    free(address);
     close(socket_fd);
 
     return 0;
